@@ -14,10 +14,10 @@ interface ChatInterfaceProps {
   agent: Agent;
   taskId: number;
   spaceId: number;
-  onBack: () => void;
+  onAgentChange: (agent: Agent) => void;
 }
 
-function ChatInterface({ agent, taskId, spaceId, onBack }: ChatInterfaceProps) {
+function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -446,7 +446,7 @@ function ChatInterface({ agent, taskId, spaceId, onBack }: ChatInterfaceProps) {
         placeholder={`Message ${agent.name}...`}
         agents={availableAgents}
         selectedAgent={agent}
-        onAgentChange={() => onBack()}
+        onAgentChange={onAgentChange}
         hasConversationAbove={true}
         textareaRef={textareaRef}
       />

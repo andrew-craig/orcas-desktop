@@ -254,9 +254,6 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
     }
   };
 
-  const handleBackToAgentSelection = () => {
-    setSelectedAgent(null);
-  };
 
   return (
     <div className="task-detail-page">
@@ -312,7 +309,7 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
                     <DiffSourceToggleWrapper>
                       <BlockTypeSelect />
                       <BoldItalicUnderlineToggles />
-                      <ListsToggle />
+                      <ListsToggle options={['bullet']} />
                       <CreateLink />
                     </DiffSourceToggleWrapper>
                   ),
@@ -354,7 +351,7 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
               agent={selectedAgent}
               taskId={task.id}
               spaceId={task.space_id}
-              onBack={handleBackToAgentSelection}
+              onAgentChange={setSelectedAgent}
             />
           ) : (
             <div className="chat-conversation-empty">
