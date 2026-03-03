@@ -1160,3 +1160,45 @@ h3 {
     color: var(--color-text-primary);
     background: var(--color-gray-5);
 }
+
+/* DocumentChip */
+.document-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    min-height: 60px;
+    min-width: 200px;
+    max-width: 300px;
+    background: #fff;
+    border: 1.5px solid;
+    border-radius: var(--radius-medium);
+    cursor: default;
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: box-shadow 0.15s ease;
+}
+
+.document-chip[role="button"] {
+    cursor: pointer;
+}
+
+.document-chip[role="button"]:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.document-chip-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+}
+
+.document-chip-title {
+    font-size: var(--font-body-size);
+    font-weight: var(--font-body-weight);
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
