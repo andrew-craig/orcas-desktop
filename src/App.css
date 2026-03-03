@@ -1092,3 +1092,71 @@ h3 {
 .space-color-swatch:hover {
     transform: scale(1.15);
 }
+
+/* CalendarChip */
+.calendar-chip {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    min-height: 60px;
+    background: #fff;
+    border: 1px solid var(--color-gray-4);
+    border-radius: var(--radius-medium);
+    cursor: default;
+}
+
+.calendar-chip[role='button'] {
+    cursor: pointer;
+}
+
+.calendar-chip[role='button']:hover {
+    background: var(--color-gray-6);
+}
+
+.calendar-chip-time {
+    width: 64px;
+    flex-shrink: 0;
+    font-size: 16px;
+    line-height: 18px;
+    color: var(--color-gray-3);
+}
+
+.calendar-chip-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.calendar-chip-title {
+    font-size: 16px;
+    line-height: 18px;
+    color: var(--color-text-primary);
+}
+
+.calendar-chip-attendees {
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--color-gray-3);
+}
+
+.calendar-chip-video-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-gray-3);
+    padding: 4px;
+    border-radius: var(--radius-small);
+}
+
+.calendar-chip-video-btn:hover {
+    color: var(--color-text-primary);
+    background: var(--color-gray-5);
+}
