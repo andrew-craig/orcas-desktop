@@ -4,8 +4,8 @@
     line-height: 24px;
     font-weight: 400;
 
-    color: #0f0f0f;
-    background-color: #f6f6f6;
+    color: var(--color-text-primary);
+    background-color: var(--color-gray-6);
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -13,24 +13,56 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
 
+    /* Figma Design Tokens — Colors */
+    --color-gray-1: #333333;
+    --color-gray-2: #4F4F4F;
+    --color-gray-3: #828282;
+    --color-gray-4: #BDBDBD;
+    --color-gray-5: #E0E0E0;
+    --color-gray-6: #F2F2F2;
+    --color-text-primary: #333333;
+    --color-text-secondary: #626262;
+    --color-orange: #F2994A;
+    --color-red: #EB5757;
+    --color-blue: #2F80ED;
+    --color-green: #219653;
+
+    /* Figma Design Tokens — Typography */
+    --font-heading1-size: 24px;
+    --font-heading1-weight: 600;
+    --font-heading2-size: 20px;
+    --font-heading2-weight: 600;
+    --font-heading3-size: 16px;
+    --font-heading3-weight: 500;
+    --font-body-size: 16px;
+    --font-body-weight: 400;
+    --font-body-small-size: 14px;
+    --font-body-small-weight: 400;
+
+    /* Figma Design Tokens — Spacing */
+    --spacing-page-padding: 32px;
+    --spacing-column-gap: 48px;
+    --spacing-section-gap: 32px;
+
+    /* Figma Design Tokens — Borders */
+    --radius-small: 4px;
+    --radius-medium: 6px;
+    --radius-large: 8px;
+
+    /* Legacy aliases (referenced throughout codebase, will be removed in later tasks) */
     --spacing-unit: 16px;
     --spacing-unit-half: calc(var(--spacing-unit) / 2);
     --spacing-unit-quarter: calc(var(--spacing-unit) / 4);
-
-    --base-font-size: 14px;
-    --bold-font-weight: 600;
+    --base-font-size: var(--font-body-small-size);
+    --bold-font-weight: var(--font-heading1-weight);
     --base-line-height: 1.5;
-    --font-color-subtle: #666;
-
-    --base-border-radius: 6px;
-
-    --border-color: #ccc;
+    --font-color-subtle: var(--color-text-secondary);
+    --base-border-radius: var(--radius-medium);
+    --border-color: var(--color-gray-4);
     --canvas-subtle: #fff;
     --textbox-padding-h: 6px;
     --textbox-padding-v: 4px;
-    --textbox-radius: 4px;
-
-    /* TODO: find a better way of managing the vertical space */
+    --textbox-radius: var(--radius-small);
     --header-height: 120px;
 }
 
@@ -627,7 +659,7 @@ h3 {
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 13px;
-    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, monospace;
 }
 
 .mca pre {
@@ -815,7 +847,7 @@ h3 {
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 14px;
-    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, monospace;
 }
 
 .chat-msg-agent pre {
