@@ -1,5 +1,4 @@
 import { useRef, useEffect } from "react";
-import { Spinner } from "@primer/react";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage, ContentBlock } from "../types";
 
@@ -80,7 +79,7 @@ function ChatMessageList({
               </ReactMarkdown>
               {currentStreamingMessage.streaming && (
                 <div className="chat-streaming-indicator">
-                  <Spinner size="small" />
+                  <div className="chat-spinner" />
                   <span>{agentName} is thinking...</span>
                 </div>
               )}

@@ -1,13 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import {
-  Heading,
-  Text,
-  TextInput,
-  FormControl,
-  Radio,
-  RadioGroup,
-  Button,
-} from "@primer/react";
 import { getSetting, setSetting, testConnection } from "../api";
 import { PROVIDERS, Provider } from "../providers";
 import CalendarSettings from "./CalendarSettings";
@@ -143,94 +134,89 @@ function Settings() {
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', width: '100%', flexDirection: 'column' }}>
       <div style={{ padding: '24px', flex: 1, overflowY: 'auto' }}>
         {isLoading ? (
-          <Text sx={{ fontSize: 1, color: "fg.muted" }}>Loading...</Text>
+          <span style={{ fontSize: 14, color: "var(--color-text-secondary)" }}>Loading...</span>
         ) : (
           <>
             {/* Provider Selection */}
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <Heading sx={{ fontSize: 2 }}>API Provider</Heading>
+                <h2 style={{ fontSize: "var(--font-heading2-size)", fontWeight: 600, margin: 0 }}>API Provider</h2>
                 {saveStatus === 'saving' && (
-                  <Text sx={{ fontSize: 0, color: "fg.muted" }}>Saving...</Text>
+                  <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>Saving...</span>
                 )}
                 {saveStatus === 'saved' && (
-                  <Text sx={{ fontSize: 0, color: "success.fg" }}>Saved</Text>
+                  <span style={{ fontSize: 12, color: "var(--color-green)" }}>Saved</span>
                 )}
                 {saveStatus === 'error' && (
-                  <Text sx={{ fontSize: 0, color: "danger.fg" }}>Save failed</Text>
+                  <span style={{ fontSize: 12, color: "var(--color-red)" }}>Save failed</span>
                 )}
               </div>
-              <Text sx={{ fontSize: 1, color: "fg.muted", display: "block", marginBottom: '12px' }}>
+              <p style={{ fontSize: 14, color: "var(--color-text-secondary)", marginBottom: '12px' }}>
                 Choose how you want to access models
-              </Text>
+              </p>
 
-              <RadioGroup
-                name="provider"
-                onChange={(value) => handleProviderChange(value as string)}
-              >
+              <div role="radiogroup">
                 {PROVIDERS.map((provider) => (
                   <div key={provider.id} style={{ marginBottom: '12px' }}>
-                    <FormControl>
-                      <Radio
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="provider"
                         value={provider.id}
                         checked={selectedProvider === provider.id}
+                        onChange={(e) => handleProviderChange(e.target.value)}
                       />
-                      <FormControl.Label sx={{ fontWeight: 'semibold' }}>
-                        {provider.name}
-                      </FormControl.Label>
-                    </FormControl>
-                    <Text sx={{ fontSize: 0, color: "fg.muted", ml: 4, display: "block" }}>
+                      <span style={{ fontWeight: 600 }}>{provider.name}</span>
+                    </label>
+                    <span style={{ fontSize: 12, color: "var(--color-text-secondary)", marginLeft: 24, display: "block" }}>
                       {provider.description}
-                    </Text>
+                    </span>
                   </div>
                 ))}
-              </RadioGroup>
+              </div>
             </div>
 
             {/* Provider-Specific Settings */}
             {currentProvider && (
               <div style={{ marginBottom: '24px' }}>
-                <Heading sx={{ fontSize: 2, mb: 2 }}>
+                <h2 style={{ fontSize: "var(--font-heading2-size)", fontWeight: 600, marginBottom: 8 }}>
                   {currentProvider.name} Configuration
-                </Heading>
+                </h2>
 
                 {currentProvider.settingsFields.map((field) => (
                   <div key={field.key} style={{ marginBottom: '12px' }}>
-                    <Text
-                      sx={{
-                        fontSize: 1,
-                        fontWeight: "semibold",
-                        mb: 2,
+                    <label
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        marginBottom: 8,
                         display: "block",
                       }}
                     >
                       {field.label}
                       {field.required && (
-                        <Text as="span" sx={{ color: "danger.fg", ml: 1 }}>
-                          *
-                        </Text>
+                        <span style={{ color: "var(--color-red)", marginLeft: 4 }}>*</span>
                       )}
-                    </Text>
+                    </label>
 
-                    <TextInput
+                    <input
                       type={field.type === 'password' ? 'password' : 'text'}
+                      className={`settings-input${fieldErrors[field.key] ? ' settings-input--error' : ''}`}
                       value={settings[field.key] || ''}
                       onChange={(e) => updateSetting(field.key, e.target.value)}
                       placeholder={field.placeholder}
-                      sx={{ width: "100%", maxWidth: 500 }}
-                      validationStatus={fieldErrors[field.key] ? 'error' : undefined}
                     />
 
                     {fieldErrors[field.key] && (
-                      <Text sx={{ fontSize: 0, color: "danger.fg", mt: 1, display: "block" }}>
+                      <span style={{ fontSize: 12, color: "var(--color-red)", marginTop: 4, display: "block" }}>
                         {fieldErrors[field.key]}
-                      </Text>
+                      </span>
                     )}
 
                     {field.helpText && !fieldErrors[field.key] && (
-                      <Text sx={{ fontSize: 0, color: "fg.muted", mt: 1, display: "block" }}>
+                      <span style={{ fontSize: 12, color: "var(--color-text-secondary)", marginTop: 4, display: "block" }}>
                         {field.helpText}
-                      </Text>
+                      </span>
                     )}
                   </div>
                 ))}
@@ -240,23 +226,22 @@ function Settings() {
             {/* Test Connection */}
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Button
+                <button
+                  className="settings-btn"
                   onClick={handleTestConnection}
                   disabled={testStatus === 'testing'}
-                  variant="default"
-                  size="small"
                 >
                   {testStatus === 'testing' ? 'Testing…' : 'Test Connection'}
-                </Button>
+                </button>
                 {testStatus === 'success' && (
-                  <Text sx={{ fontSize: 1, color: 'success.fg' }}>
+                  <span style={{ fontSize: 14, color: 'var(--color-green)' }}>
                     ✓ {testMessage}
-                  </Text>
+                  </span>
                 )}
                 {testStatus === 'error' && (
-                  <Text sx={{ fontSize: 1, color: 'danger.fg' }}>
+                  <span style={{ fontSize: 14, color: 'var(--color-red)' }}>
                     ✗ {testMessage}
-                  </Text>
+                  </span>
                 )}
               </div>
             </div>
@@ -266,7 +251,7 @@ function Settings() {
               style={{
                 marginBottom: '24px',
                 paddingTop: '24px',
-                borderTop: '1px solid var(--borderColor-default)',
+                borderTop: '1px solid var(--color-gray-4)',
               }}
             >
               <CalendarSettings />

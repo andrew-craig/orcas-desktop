@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { check, Update } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
-import { Button, Text, Spinner } from "@primer/react";
-import { XIcon } from "@primer/octicons-react";
 
 type UpdateState =
   | { kind: "idle" }
@@ -103,49 +101,50 @@ export default function UpdateNotification() {
     >
       {state.kind === "available" && (
         <>
-          <Text sx={{ fontSize: 1, flexShrink: 0 }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>
             Update available: <strong>v{state.version}</strong>
-          </Text>
-          <Button size="small" variant="primary" onClick={handleDownload}>
+          </span>
+          <button className="update-notification-btn" onClick={handleDownload}>
             Download
-          </Button>
+          </button>
         </>
       )}
 
       {state.kind === "downloading" && (
         <>
-          <Spinner size="small" />
-          <Text sx={{ fontSize: 1 }}>
+          <div className="chat-spinner" />
+          <span style={{ fontSize: 14 }}>
             Downloading... {state.progress}%
-          </Text>
+          </span>
         </>
       )}
 
       {state.kind === "ready" && (
         <>
-          <Text sx={{ fontSize: 1, flexShrink: 0 }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>
             Update v{state.version} ready
-          </Text>
-          <Button size="small" variant="primary" onClick={handleRestart}>
+          </span>
+          <button className="update-notification-btn" onClick={handleRestart}>
             Restart now
-          </Button>
+          </button>
         </>
       )}
 
       {state.kind === "error" && (
-        <Text sx={{ fontSize: 1, color: "danger.fg" }}>
+        <span style={{ fontSize: 14, color: "var(--color-red)" }}>
           Update failed
-        </Text>
+        </span>
       )}
 
-      <Button
-        size="small"
-        variant="invisible"
-        icon={XIcon}
+      <button
+        style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, padding: 4, color: "var(--color-text-secondary)" }}
         aria-label="Dismiss"
         onClick={() => setDismissed(true)}
-        sx={{ flexShrink: 0 }}
-      />
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
   );
 }

@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Box, Text, Button, Spinner, ProgressBar } from "@primer/react";
-import { ChevronDownIcon, ChevronRightIcon, CheckCircleIcon, StopIcon, XIcon } from "@primer/octicons-react";
 import { listen } from "@tauri-apps/api/event";
 import { startTaskPlanning, cancelTaskPlanning } from "../api";
 import type { SubTask, TaskWithSubTasks } from "../types";
@@ -30,6 +28,48 @@ interface PlanCardProps {
   subtasks: SubTask[];
   task?: TaskWithSubTasks;
   onPlanningComplete?: () => void;
+}
+
+// Inline heroicon SVGs
+function ChevronDown({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 9l-7 7-7-7" />
+    </svg>
+  );
+}
+
+function ChevronRight({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+function CheckCircle({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function StopCircle({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+    </svg>
+  );
+}
+
+function XMark({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
 }
 
 function PlanCard({ subtasks, task, onPlanningComplete }: PlanCardProps) {
@@ -145,198 +185,107 @@ function PlanCard({ subtasks, task, onPlanningComplete }: PlanCardProps) {
     }
   };
 
-  // Empty state - show "Plan" CTA in collapsed header style
+  // Empty state
   if (totalCount === 0 && !isPlanning && !planningResult && !wasCancelled) {
     return (
-      <Box
-        backgroundColor="canvas.subtle"
-        border="1px solid"
-        borderColor="border.default"
-        borderRadius={2}
-        overflow="hidden"
-      >
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          p={3}
-        >
-          <Text sx={{ fontWeight: "semibold", fontSize: 1 }}>Plan</Text>
-          <Button
-            size="small"
-            variant="default"
-            onClick={handlePlanTask}
-            disabled={!task}
-          >
+      <div className="plan-card">
+        <div className="plan-card-header">
+          <span className="plan-card-title">Plan</span>
+          <button className="plan-card-btn" onClick={handlePlanTask} disabled={!task}>
             Plan
-          </Button>
-        </Box>
+          </button>
+        </div>
         {planningError && (
-          <Box
-            borderTop="1px solid"
-            borderColor="border.default"
-            p={3}
-            backgroundColor="danger.subtle"
-          >
-            <Text sx={{ fontSize: 0, color: "danger.fg" }}>{planningError}</Text>
-          </Box>
+          <div className="plan-card-error">
+            <span>{planningError}</span>
+          </div>
         )}
-      </Box>
+      </div>
     );
   }
 
   // Planning in progress
   if (isPlanning) {
     return (
-      <Box
-        backgroundColor="canvas.subtle"
-        border="1px solid"
-        borderColor="border.default"
-        borderRadius={2}
-        p={3}
-      >
-        <Text sx={{ fontWeight: "semibold", fontSize: 1, mb: 3, display: "block" }}>
-          Plan
-        </Text>
-        <Box p={3} backgroundColor="canvas.inset" border="1px solid" borderColor="border.muted" borderRadius={2}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Box display="flex" alignItems="center" sx={{ gap: 2 }}>
-              <Spinner size="small" />
-              <Text sx={{ fontSize: 1, fontWeight: "semibold" }}>
-                {currentStep || "Processing..."}
-              </Text>
-            </Box>
-            <Text sx={{ fontSize: 0, color: "fg.muted", fontFamily: "mono" }}>
-              {Math.round(planningProgress * 100)}%
-            </Text>
-          </Box>
-          <ProgressBar progress={planningProgress} sx={{ mb: 2 }} />
+      <div className="plan-card" style={{ padding: 12 }}>
+        <span className="plan-card-title" style={{ marginBottom: 12, display: "block" }}>Plan</span>
+        <div className="plan-card-inset">
+          <div className="plan-card-progress-header">
+            <div className="plan-card-progress-label">
+              <div className="chat-spinner" />
+              <span className="plan-card-step">{currentStep || "Processing..."}</span>
+            </div>
+            <span className="plan-card-percent">{Math.round(planningProgress * 100)}%</span>
+          </div>
+          <div className="plan-card-progress-bar">
+            <div className="plan-card-progress-fill" style={{ width: `${planningProgress * 100}%` }} />
+          </div>
           {planningMessage && (
-            <Text sx={{ fontSize: 0, color: "fg.muted", mb: 2, display: "block" }}>
-              {planningMessage}
-            </Text>
+            <span className="plan-card-message">{planningMessage}</span>
           )}
-          <Button
-            size="small"
-            variant="danger"
-            onClick={handleCancelPlanning}
-            sx={{ width: "100%" }}
-            leadingVisual={StopIcon}
-          >
+          <button className="plan-card-btn plan-card-btn--danger plan-card-btn--full" onClick={handleCancelPlanning}>
+            <StopCircle size={14} />
             Cancel Planning
-          </Button>
-        </Box>
-      </Box>
+          </button>
+        </div>
+      </div>
     );
   }
 
-  // Planning complete (success) but no subtasks yet (waiting for refresh)
+  // Planning complete (success) but no subtasks yet
   if (planningResult && totalCount === 0) {
     return (
-      <Box
-        backgroundColor="canvas.subtle"
-        border="1px solid"
-        borderColor="border.default"
-        borderRadius={2}
-        p={3}
-      >
-        <Text sx={{ fontWeight: "semibold", fontSize: 1, mb: 3, display: "block" }}>
-          Plan
-        </Text>
-        <Box p={3} backgroundColor="success.subtle" border="1px solid" borderColor="success.muted" borderRadius={2}>
-          <Text sx={{ fontSize: 1, fontWeight: "semibold", mb: 2, color: "success.fg", display: "flex", alignItems: "center", gap: 1 }}>
-            <CheckCircleIcon size={16} />
+      <div className="plan-card" style={{ padding: 12 }}>
+        <span className="plan-card-title" style={{ marginBottom: 12, display: "block" }}>Plan</span>
+        <div className="plan-card-success">
+          <span className="plan-card-success-title">
+            <CheckCircle size={16} />
             Task Planning Complete
-          </Text>
-          <Text sx={{ fontSize: 0, color: "success.fg", whiteSpace: "pre-line" }}>
-            {planningResult}
-          </Text>
-        </Box>
-      </Box>
+          </span>
+          <span className="plan-card-success-text">{planningResult}</span>
+        </div>
+      </div>
     );
   }
 
   // Cancelled state
   if (wasCancelled) {
     return (
-      <Box
-        backgroundColor="canvas.subtle"
-        border="1px solid"
-        borderColor="border.default"
-        borderRadius={2}
-        p={3}
-      >
-        <Text sx={{ fontWeight: "semibold", fontSize: 1, mb: 3, display: "block" }}>
-          Plan
-        </Text>
-        <Box p={3} backgroundColor="attention.subtle" border="1px solid" borderColor="attention.muted" borderRadius={2}>
-          <Text sx={{ fontSize: 1, fontWeight: "semibold", color: "attention.fg", display: "flex", alignItems: "center", gap: 1 }}>
-            <XIcon size={16} />
+      <div className="plan-card" style={{ padding: 12 }}>
+        <span className="plan-card-title" style={{ marginBottom: 12, display: "block" }}>Plan</span>
+        <div className="plan-card-warning">
+          <span className="plan-card-warning-title">
+            <XMark size={16} />
             Task planning cancelled
-          </Text>
-          <Text sx={{ fontSize: 0, color: "attention.fg", mt: 1, display: "block" }}>
+          </span>
+          <span className="plan-card-warning-text">
             The task planning operation was cancelled. You can try again at any time.
-          </Text>
-        </Box>
-      </Box>
+          </span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Box
-      backgroundColor="canvas.subtle"
-      border="1px solid"
-      borderColor="border.default"
-      borderRadius={2}
-      overflow="hidden"
-    >
-      {/* Collapsed header - always visible */}
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        p={3}
-        sx={{
-          cursor: "pointer",
-          "&:hover": {
-            backgroundColor: "canvas.default",
-          },
-        }}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <Box display="flex" alignItems="center" sx={{ gap: 2 }}>
-          {isExpanded ? (
-            <ChevronDownIcon size={16} />
-          ) : (
-            <ChevronRightIcon size={16} />
-          )}
-          <Text sx={{ fontWeight: "semibold", fontSize: 1 }}>Plan</Text>
-          <Text sx={{ fontSize: 1, color: "fg.muted" }}>
-            {totalCount} subtask{totalCount !== 1 ? "s" : ""}
-          </Text>
-        </Box>
-        <Box display="flex" alignItems="center" sx={{ gap: 1 }}>
-          {completedCount > 0 && (
-            <>
-              <CheckCircleIcon size={14} className="color-fg-success" />
-              <Text sx={{ fontSize: 0, color: "success.fg" }}>
-                {completedCount}/{totalCount}
-              </Text>
-            </>
-          )}
-        </Box>
-      </Box>
+    <div className="plan-card">
+      {/* Collapsed header */}
+      <div className="plan-card-header plan-card-header--clickable" onClick={() => setIsExpanded(!isExpanded)}>
+        <div className="plan-card-header-left">
+          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          <span className="plan-card-title">Plan</span>
+          <span className="plan-card-count">{totalCount} subtask{totalCount !== 1 ? "s" : ""}</span>
+        </div>
+        {completedCount > 0 && (
+          <div className="plan-card-completed">
+            <CheckCircle size={14} />
+            <span>{completedCount}/{totalCount}</span>
+          </div>
+        )}
+      </div>
 
       {/* Expanded content */}
       {isExpanded && (
-        <Box
-          borderTop="1px solid"
-          borderColor="border.default"
-          p={3}
-          display="flex"
-          flexDirection="column"
-          sx={{ gap: 2 }}
-        >
+        <div className="plan-card-content">
           {subtasks.map((subtask, index) => {
             const isSubtaskExpanded = expandedSubtasks.has(subtask.id);
             const hasDescription = subtask.description && subtask.description.trim().length > 0;
@@ -355,89 +304,37 @@ function PlanCard({ subtasks, task, onPlanningComplete }: PlanCardProps) {
             };
 
             return (
-              <Box key={subtask.id}>
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  sx={{
-                    gap: 2,
-                    cursor: hasDescription ? "pointer" : "default",
-                    "&:hover": hasDescription ? {
-                      backgroundColor: "canvas.default",
-                    } : {},
-                    borderRadius: 1,
-                    p: 1,
-                    ml: -1,
-                  }}
+              <div key={subtask.id}>
+                <div
+                  className={`plan-card-subtask${hasDescription ? " plan-card-subtask--expandable" : ""}`}
                   onClick={toggleSubtask}
                 >
                   {hasDescription && (
-                    <Box sx={{ color: "fg.muted", flexShrink: 0 }}>
-                      {isSubtaskExpanded ? (
-                        <ChevronDownIcon size={14} />
-                      ) : (
-                        <ChevronRightIcon size={14} />
-                      )}
-                    </Box>
+                    <span className="plan-card-subtask-chevron">
+                      {isSubtaskExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    </span>
                   )}
-                  <Box
-                    sx={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      backgroundColor: subtask.completed
-                        ? "success.emphasis"
-                        : "border.default",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: subtask.completed ? "fg.onEmphasis" : "fg.muted",
-                      fontSize: 0,
-                      fontWeight: "bold",
-                      flexShrink: 0,
-                      ml: hasDescription ? 0 : 3,
-                    }}
+                  <span
+                    className={`plan-card-subtask-number${subtask.completed ? " plan-card-subtask-number--done" : ""}`}
+                    style={{ marginLeft: hasDescription ? 0 : 22 }}
                   >
                     {subtask.completed ? "✓" : index + 1}
-                  </Box>
-                  <Text
-                    sx={{
-                      fontSize: 1,
-                      textDecoration: subtask.completed ? "line-through" : "none",
-                      color: subtask.completed ? "fg.muted" : "fg.default",
-                    }}
-                  >
+                  </span>
+                  <span className={`plan-card-subtask-title${subtask.completed ? " plan-card-subtask-title--done" : ""}`}>
                     {subtask.title}
-                  </Text>
-                </Box>
-                {/* Subtask description */}
+                  </span>
+                </div>
                 {isSubtaskExpanded && hasDescription && (
-                  <Box
-                    sx={{
-                      ml: 6,
-                      mt: 1,
-                      pl: 3,
-                      borderLeft: "2px solid",
-                      borderColor: "border.default",
-                    }}
-                  >
-                    <Text
-                      sx={{
-                        fontSize: 0,
-                        color: "fg.muted",
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {subtask.description}
-                    </Text>
-                  </Box>
+                  <div className="plan-card-subtask-desc">
+                    <span>{subtask.description}</span>
+                  </div>
                 )}
-              </Box>
+              </div>
             );
           })}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
 

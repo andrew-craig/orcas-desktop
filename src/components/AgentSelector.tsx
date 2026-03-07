@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Box, Button, Text, Spinner } from "@primer/react";
 import { getAllAgents } from "../api";
 import type { Agent } from "../types";
 
@@ -37,76 +36,52 @@ function AgentSelector({ onAgentSelected, selectedAgent }: AgentSelectorProps) {
 
   if (loading) {
     return (
-      <Box display="flex" alignItems="center" justifyContent="center" p={4}>
-        <Spinner size="small" />
-        <Text sx={{ ml: 2, color: "fg.muted" }}>Loading agents...</Text>
-      </Box>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+        <div className="chat-spinner" />
+        <span style={{ marginLeft: 8, color: "var(--color-text-secondary)" }}>Loading agents...</span>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Box p={4}>
-        <Text sx={{ color: "danger.fg", mb: 2 }}>{error}</Text>
-        <Button size="small" onClick={loadAgents}>
+      <div style={{ padding: 16 }}>
+        <span style={{ color: "var(--color-red)", marginBottom: 8, display: "block" }}>{error}</span>
+        <button className="settings-btn settings-btn--small" onClick={loadAgents}>
           Retry
-        </Button>
-      </Box>
+        </button>
+      </div>
     );
   }
 
   if (agents.length === 0) {
     return (
-      <Box p={4}>
-        <Text sx={{ color: "fg.muted", textAlign: "center" }}>
+      <div style={{ padding: 16 }}>
+        <span style={{ color: "var(--color-text-secondary)", textAlign: "center", display: "block" }}>
           No agents available. Create an agent to get started.
-        </Text>
-      </Box>
+        </span>
+      </div>
     );
   }
 
   if (selectedAgent) {
     return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        p={3}
-        backgroundColor="accent.subtle"
-        border="1px solid"
-        borderColor="accent.muted"
-        borderRadius={2}
-        mb={3}
-      >
-        <Box display="flex" alignItems="center" sx={{ gap: 2 }}>
-          <Box
-            sx={{
-              width: 24,
-              height: 24,
-              borderRadius: "50%",
-              backgroundColor: "accent.emphasis",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "fg.onEmphasis",
-              fontSize: 0,
-            }}
-          >
-            🤖
-          </Box>
-          <Box>
-            <Text sx={{ fontWeight: "semibold", fontSize: 1 }}>
+      <div className="agent-selector-selected">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="agent-selector-avatar">🤖</div>
+          <div>
+            <span style={{ fontWeight: 600, fontSize: 14, display: "block" }}>
               {selectedAgent.name}
-            </Text>
-            <Text sx={{ fontSize: 0, color: "fg.muted" }}>
+            </span>
+            <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>
               {selectedAgent.model_name}
-            </Text>
-          </Box>
-        </Box>
-        <Button size="small" onClick={() => onAgentSelected(null as any)}>
+            </span>
+          </div>
+        </div>
+        <button className="settings-btn settings-btn--small" onClick={() => onAgentSelected(null as any)}>
           Change Agent
-        </Button>
-      </Box>
+        </button>
+      </div>
     );
   }
 
@@ -115,42 +90,19 @@ function AgentSelector({ onAgentSelected, selectedAgent }: AgentSelectorProps) {
       <div className="agent-empty-state">
         <h2>Send to an agent</h2>
 
-        <Box display="flex" flexDirection="column" sx={{ gap: 2 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {agents.map((agent) => (
-            <Button
+            <button
               key={agent.id}
-              size="medium"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                p: 3,
-                textAlign: "left",
-                "&:hover": {
-                  backgroundColor: "accent.subtle",
-                  borderColor: "accent.muted",
-                },
-              }}
+              className="agent-selector-item"
               onClick={() => handleAgentSelect(agent)}
             >
-              <Box flex={1}>
-                <Text
-                  sx={{ fontWeight: "semibold", fontSize: 1, display: "block" }}
-                >
-                  {agent.name}
-                </Text>
-                <Text
-                  sx={{
-                    fontSize: 0,
-                    color: "fg.muted",
-                    display: "block",
-                    mt: 1,
-                  }}
-                ></Text>
-              </Box>
-            </Button>
+              <span style={{ fontWeight: 600, fontSize: 14, display: "block" }}>
+                {agent.name}
+              </span>
+            </button>
           ))}
-        </Box>
+        </div>
       </div>
     </div>
   );
