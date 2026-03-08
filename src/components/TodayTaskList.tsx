@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Task, Space } from '../types';
 import { updateTaskStatus, createTask } from '../api';
+import TodoItem from './TodoItem';
 
 interface TodayTaskListProps {
   tasks: Task[];
@@ -26,9 +27,8 @@ export default function TodayTaskList({ tasks, spaces, onRefresh, onTaskClick }:
     tasksBySpace.set(task.space_id, existing);
   }
 
-  const handleToggleTask = async (e: React.MouseEvent, task: Task) => {
-    e.stopPropagation();
-    const newStatus = task.status === 'done' ? 'todo' : 'done';
+  const handleToggleTask = async (task: Task, checked: boolean) => {
+    const newStatus = checked ? 'done' : 'todo';
     try {
       await updateTaskStatus(task.id, newStatus);
       onRefresh();
@@ -39,7 +39,6 @@ export default function TodayTaskList({ tasks, spaces, onRefresh, onTaskClick }:
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
-    // Use the first space if available, otherwise we can't create
     const targetSpaceId = spaces.length > 0 ? spaces[0].id : null;
     if (!targetSpaceId) return;
 
@@ -70,34 +69,11 @@ export default function TodayTaskList({ tasks, spaces, onRefresh, onTaskClick }:
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       {/* Add New Task Row */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          height: '32px',
-          padding: '4px 12px',
-          borderRadius: '6px',
-          cursor: 'pointer',
-        }}
-        onClick={() => {
-          if (!isAddingTask) setIsAddingTask(true);
-        }}
-      >
-        {/* Plus icon */}
-        <div style={{
-          width: '16px',
-          height: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 1V13M1 7H13" stroke="#828282" strokeWidth="1.5" strokeLinecap="round" />
+      {isAddingTask ? (
+        <div className="todo-item todo-item--new">
+          <svg className="todo-item-plus" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 5v14M5 12h14" />
           </svg>
-        </div>
-        {isAddingTask ? (
           <input
             autoFocus
             value={newTaskTitle}
@@ -115,25 +91,16 @@ export default function TodayTaskList({ tasks, spaces, onRefresh, onTaskClick }:
               flex: 1,
               border: 'none',
               outline: 'none',
-              fontSize: '16px',
+              fontSize: 'var(--font-body-size)',
               fontFamily: "'IBM Plex Sans', sans-serif",
-              color: '#333',
+              color: 'var(--color-text-primary)',
               backgroundColor: 'transparent',
             }}
           />
-        ) : (
-          <span style={{
-            flex: 1,
-            fontSize: '16px',
-            color: '#828282',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
-            Add a new task
-          </span>
-        )}
-      </div>
+        </div>
+      ) : (
+        <TodoItem variant="new" text="Add a new task" onAddNew={() => setIsAddingTask(true)} />
+      )}
 
       {/* Tasks Grouped by Space */}
       {Array.from(tasksBySpace.entries()).map(([spaceId, spaceTasks]) => {
@@ -141,95 +108,16 @@ export default function TodayTaskList({ tasks, spaces, onRefresh, onTaskClick }:
         const spaceName = space?.title || 'Unknown Space';
 
         return (
-          <div key={spaceId} style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-            padding: '4px 0',
-          }}>
-            {/* Space Header */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
-              height: '32px',
-              justifyContent: 'center',
-              padding: '2px 0',
-            }}>
-              <div style={{ padding: '4px 12px' }}>
-                <span style={{
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  color: '#333',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {spaceName}
-                </span>
-              </div>
-              <div style={{
-                height: '2px',
-                backgroundColor: space?.color || '#bdbdbd',
-                width: '100%',
-                borderRadius: '1px',
-              }} />
-            </div>
-
-            {/* Tasks */}
+          <div key={spaceId} style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
+            <TodoItem variant="project-header" text={spaceName} />
             {spaceTasks.map(task => (
-              <div
+              <TodoItem
                 key={task.id}
+                text={task.title}
+                checked={task.status === 'done'}
+                onCheck={(checked) => handleToggleTask(task, checked)}
                 onClick={() => onTaskClick?.(task.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  height: '32px',
-                  padding: '4px 12px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  backgroundColor: 'white',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f2f2f2'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; }}
-              >
-                {/* Checkbox */}
-                <button
-                  onClick={(e) => handleToggleTask(e, task)}
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '4px',
-                    border: task.status === 'done' ? '1px solid #333' : '1px solid #bdbdbd',
-                    backgroundColor: task.status === 'done' ? '#333' : 'transparent',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 0,
-                  }}
-                >
-                  {task.status === 'done' && (
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </button>
-                <span style={{
-                  flex: 1,
-                  fontSize: '16px',
-                  color: task.status === 'done' ? '#828282' : '#333',
-                  textDecoration: task.status === 'done' ? 'line-through' : 'none',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  minWidth: 0,
-                }}>
-                  {task.title}
-                </span>
-              </div>
+              />
             ))}
           </div>
         );
@@ -237,12 +125,8 @@ export default function TodayTaskList({ tasks, spaces, onRefresh, onTaskClick }:
 
       {/* Empty state */}
       {tasks.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '48px 0',
-          color: '#828282',
-        }}>
-          <div style={{ marginBottom: '8px', fontSize: '16px' }}>
+        <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-text-secondary)' }}>
+          <div style={{ marginBottom: '8px', fontSize: 'var(--font-body-size)' }}>
             No tasks for today
           </div>
           <div style={{ fontSize: '14px' }}>
