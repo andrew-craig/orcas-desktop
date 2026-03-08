@@ -49,3 +49,11 @@ echo "Installing npm dependencies..."
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 npm install --prefix "$PROJECT_DIR"
 echo "npm install complete"
+
+# Restore beads issues from backup
+echo "Restoring beads issues from backup..."
+if bd backup restore "$PROJECT_DIR/.beads/backup" 2>/dev/null; then
+    echo "Beads restore complete"
+else
+    echo "Warning: beads restore failed or no backup found"
+fi
