@@ -50,3 +50,14 @@
 # - linear.api-key
 # - github.org
 # - github.repo
+
+issue-prefix: "orcas"
+
+dolt:
+  auto-push: true       # Auto-enable when origin remote exists (default)
+  auto-push-interval: 15m  # Minimum time between auto-pushes
+sync:
+  export_on: push       # push | change
+  import_on: pull       # pull | change
+backup.enabled: false
+sync.mode: dolt-native

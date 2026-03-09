@@ -231,8 +231,8 @@ h3 {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     background: none;
     border: none;
     cursor: pointer;
@@ -306,7 +306,7 @@ h3 {
     flex-direction: column;
     overflow: hidden;
     min-height: 0;
-    gap: var(--spacing-unit);
+    gap: var(--spacing-section-gap);
 }
 
 .document-pane .mdxeditor [class*="_editorWrapper"] {
@@ -331,7 +331,7 @@ h3 {
 
 /* MDX Editor toolbar styling */
 .document-pane .mdxeditor [class*="_toolbarRoot"] {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-gray-3);
     padding: 0;
 }
 

@@ -260,7 +260,7 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
       {/* Header */}
       <header className="task-detail-header">
         <button className="task-detail-back-btn" onClick={onBack} aria-label="Go back">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clipRule="evenodd" />
           </svg>
         </button>
