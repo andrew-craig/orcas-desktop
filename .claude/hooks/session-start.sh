@@ -30,6 +30,9 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
     echo "export PATH=\"${HOME}/.local/bin:\$PATH\"" >> "$CLAUDE_ENV_FILE"
 fi
 
+# Resolve project directory early (used by dolt setup and npm install)
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+
 # Install dolt if not present (required by bd)
 if ! command -v dolt &> /dev/null; then
     echo "Installing dolt..."
@@ -40,12 +43,25 @@ if ! command -v dolt &> /dev/null; then
     fi
 fi
 
+# Set up Dolt database from remote
+DOLT_REMOTE="http://github.com/andrew-craig/orcas-desktop.git"
+DOLT_DATA_DIR="${PROJECT_DIR}/.beads/dolt/beads_orcas"
+
+echo "Setting up Dolt database..."
+if [ ! -d "$DOLT_DATA_DIR" ]; then
+    echo "Cloning Dolt database from remote..."
+    dolt clone "$DOLT_REMOTE" "$DOLT_DATA_DIR"
+else
+    echo "Dolt database directory exists, ensuring remote is registered..."
+    bd dolt remote add origin "$DOLT_REMOTE" 2>/dev/null || true
+fi
+
+bd dolt start || true
+bd dolt pull || echo "Warning: dolt pull failed (will continue)"
+
 # Verify and show version
 bd version
 
 echo "Installing npm dependencies..."
-# CLAUDE_PROJECT_DIR may not be set in all environments; fall back to the
-# project root derived from this script's location (.claude/hooks/session-start.sh → ../../)
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 npm install --prefix "$PROJECT_DIR"
 echo "npm install complete"
