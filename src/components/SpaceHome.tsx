@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getTasksBySpace, getSpaceContext, updateSpaceContext, createTask, getSpaceEvents, getEventsForDate, getSetting, untagEventFromSpace, updateTaskStatus } from "../api";
 import type { Space, TaskWithSubTasks, CalendarEvent, EventSpaceAssociation } from "../types";
-import { MDXEditor, headingsPlugin, listsPlugin, quotePlugin, thematicBreakPlugin, markdownShortcutPlugin } from '@mdxeditor/editor';
+import { MDXEditor, headingsPlugin, listsPlugin, quotePlugin, thematicBreakPlugin, markdownShortcutPlugin, toolbarPlugin, BoldItalicUnderlineToggles, BlockTypeSelect, ListsToggle } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
 import CalendarChip from "./CalendarChip";
 
@@ -649,18 +649,18 @@ function SpaceHome({
           flexDirection: "column",
           gap: "32px",
           height: "100%",
-          overflow: "auto",
+          overflow: "hidden",
           minWidth: 0,
         }}>
           {/* Context section */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", minHeight: 0 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", minHeight: 0, flex: 1, overflow: "hidden" }}>
             <h2 style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "20px", fontWeight: 600, color: "#333", lineHeight: "normal", margin: 0, flexShrink: 0 }}>
               Context
             </h2>
             {isContextLoading ? (
               <p style={{ fontSize: "16px", fontFamily: "Inter, sans-serif", lineHeight: 1.4, color: "#828282", margin: 0 }}>Loading context...</p>
             ) : (
-              <div className="context-editor-pane" style={{ flex: 1, fontSize: "16px", fontFamily: "Inter, sans-serif", lineHeight: 1.4 }}>
+              <div className="context-editor-pane" style={{ flex: 1, fontSize: "16px", fontFamily: "Inter, sans-serif", lineHeight: 1.4, overflow: "hidden" }}>
                 <MDXEditor
                   key={selectedSpace.id}
                   markdown={contextContent}
@@ -674,6 +674,15 @@ function SpaceHome({
                     quotePlugin(),
                     thematicBreakPlugin(),
                     markdownShortcutPlugin(),
+                    toolbarPlugin({
+                      toolbarContents: () => (
+                        <>
+                          <BlockTypeSelect />
+                          <BoldItalicUnderlineToggles />
+                          <ListsToggle options={['bullet']} />
+                        </>
+                      ),
+                    }),
                   ]}
                   contentEditableClassName="mdx-editor-content"
                 />
