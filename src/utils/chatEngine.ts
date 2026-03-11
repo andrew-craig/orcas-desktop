@@ -2,18 +2,13 @@
  * Shared chat engine: send-and-loop logic for AI conversations.
  *
  * Encapsulates message compaction, API call with retry, tool-use loop
- * (tool_use + pause_turn), citation extraction, token usage accumulation,
- * and response length limits.
+ * (tool_use + pause_turn), citation extraction, and token usage accumulation.
  */
 
 import { invoke } from "@tauri-apps/api/core";
 import { withRetry } from "./retry";
 import { compactMessages } from "./tokenEstimation";
 import type { ToolResult } from "./agentTools";
-
-// ── Constants ───────────────────────────────────────────────────────────
-
-const MAX_RESPONSE_LENGTH = 10_000;
 
 // ── Types ───────────────────────────────────────────────────────────────
 
@@ -203,13 +198,6 @@ export async function sendChatTurn(
     accumulatedContent +=
       "\n\n**Sources:**\n" +
       citations.map((c) => `- [${c.title}](${c.url})`).join("\n");
-  }
-
-  // Truncation guard
-  if (accumulatedContent.length > MAX_RESPONSE_LENGTH) {
-    accumulatedContent =
-      accumulatedContent.substring(0, MAX_RESPONSE_LENGTH) +
-      "\n\n[Response truncated due to length]";
   }
 
   callbacks.onContentUpdate?.(accumulatedContent);
