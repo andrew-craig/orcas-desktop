@@ -292,7 +292,7 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
               key={editorKey}
               markdown={documentContent}
               readOnly={editLock === 'agent'}
-              onChange={(newContent) => {
+              onChange={(newContent: string) => {
                 if (editLock !== 'agent') {
                   setDocumentContent(newContent);
                   saveDocument(newContent);

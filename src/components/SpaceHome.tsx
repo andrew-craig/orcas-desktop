@@ -664,7 +664,7 @@ function SpaceHome({
                 <MDXEditor
                   key={selectedSpace.id}
                   markdown={contextContent}
-                  onChange={(newContent) => {
+                  onChange={(newContent: string) => {
                     setContextContent(newContent);
                     saveContext(newContent);
                   }}
