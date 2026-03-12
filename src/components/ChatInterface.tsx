@@ -40,7 +40,7 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
   const [taskNotesChangedSinceLastRead, setTaskNotesChangedSinceLastRead] = useState(false);
   const lastAgentReadContentRef = useRef<string | null>(null);
 
-  const MAX_DISPLAY_LENGTH = 5000;
+  const MAX_DISPLAY_LENGTH = 20000;
 
   const scrollToBottom = () => {
     const container = messagesContainerRef.current;
@@ -412,7 +412,7 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
     const isExpanded = expandedMessages[messageId];
     const displayContent = isExpanded
       ? content
-      : content.substring(0, MAX_DISPLAY_LENGTH) + "...";
+      : "..." + content.substring(content.length - MAX_DISPLAY_LENGTH);
 
     return (
       <>
@@ -421,7 +421,7 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
           className="chat-show-more-btn"
           onClick={() => toggleExpanded(messageId)}
         >
-          {isExpanded ? "Show Less" : "Show More"}
+          {isExpanded ? "Show Less" : "Show Full Message"}
         </button>
       </>
     );
