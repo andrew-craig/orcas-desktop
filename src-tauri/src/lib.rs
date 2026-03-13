@@ -489,8 +489,14 @@ pub fn run() {
         },
         Migration {
             version: 23,
+            description: "add_system_role_to_agents",
+            sql: include_str!("../migrations/023_add_system_role_to_agents.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 24,
             description: "add_chief_of_staff_agent",
-            sql: include_str!("../migrations/023_add_chief_of_staff_agent.sql"),
+            sql: include_str!("../migrations/024_add_chief_of_staff_agent.sql"),
             kind: MigrationKind::Up,
         },
     ];
