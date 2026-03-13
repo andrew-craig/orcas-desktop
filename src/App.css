@@ -1041,6 +1041,61 @@ h3 {
     color: #828282;
 }
 
+/* Tool Use Block (collapsible tool results in chat) */
+.tool-use-block {
+    width: 100%;
+}
+
+.tool-use-block-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 0;
+    user-select: none;
+}
+
+.tool-use-block-label {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+.tool-use-block-name {
+    flex: 1;
+    color: var(--color-text-primary);
+    font-size: 16px;
+}
+
+.tool-use-block-chevron {
+    display: flex;
+    align-items: center;
+    color: var(--color-text-primary);
+}
+
+.tool-use-block-content {
+    color: var(--color-text-secondary);
+    font-size: 16px;
+    padding-top: 4px;
+    overflow-x: auto;
+}
+
+.tool-use-block-content--error {
+    color: var(--color-red, #d1242f);
+}
+
+.tool-use-block-yaml {
+    font-family: inherit;
+    font-size: 16px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
 /* Chat Input Bar */
 .chat-input-bar {
     border: 1.5px solid black;

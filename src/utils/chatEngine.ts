@@ -9,6 +9,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { withRetry } from "./retry";
 import { compactMessages } from "./tokenEstimation";
 import type { ToolResult } from "./agentTools";
+import type { RichContentBlock } from "../types";
 
 // ── Types ───────────────────────────────────────────────────────────────
 
@@ -23,12 +24,15 @@ export interface ChatTurnConfig {
 export interface ChatTurnCallbacks {
   /** Called when accumulated text content changes. */
   onContentUpdate?: (content: string) => void;
+  /** Called when structured content blocks change (for tool use rendering). */
+  onBlocksUpdate?: (blocks: RichContentBlock[]) => void;
   /** Execute a tool call; return the result. */
   executeTool?: (toolName: string, toolInput: any) => Promise<ToolResult>;
 }
 
 export interface ChatTurnResult {
   content: string;
+  contentBlocks: RichContentBlock[];
   inputTokens: number;
   outputTokens: number;
 }
@@ -84,8 +88,20 @@ export async function sendChatTurn(
   );
 
   let accumulatedContent = "";
+  const accumulatedBlocks: RichContentBlock[] = [];
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
+
+  /** Push text to accumulatedBlocks, merging with the last block if it's also text. */
+  const pushTextBlock = (text: string) => {
+    if (!text) return;
+    const last = accumulatedBlocks[accumulatedBlocks.length - 1];
+    if (last && last.type === "text") {
+      last.text += text;
+    } else {
+      accumulatedBlocks.push({ type: "text", text });
+    }
+  };
 
   const callApi = (messages: any[]) =>
     withRetry(
@@ -120,7 +136,9 @@ export async function sendChatTurn(
       const pauseText = extractTextFromBlocks(response.content);
       if (pauseText) {
         accumulatedContent += pauseText;
+        pushTextBlock(pauseText);
         callbacks.onContentUpdate?.(accumulatedContent);
+        callbacks.onBlocksUpdate?.([...accumulatedBlocks]);
       }
 
       fullConversation.push({ role: "assistant", content: response.content });
@@ -138,7 +156,9 @@ export async function sendChatTurn(
 
     if (textContent) {
       accumulatedContent += textContent;
+      pushTextBlock(textContent);
       callbacks.onContentUpdate?.(accumulatedContent);
+      callbacks.onBlocksUpdate?.([...accumulatedBlocks]);
     }
 
     const toolResults: any[] = [];
@@ -156,15 +176,32 @@ export async function sendChatTurn(
             content: resultText,
           });
           accumulatedContent += `*Tool result:* ${resultText}\n`;
+          accumulatedBlocks.push({
+            type: "tool_use_pair",
+            toolName: toolCall.name,
+            toolInput: toolCall.input,
+            toolUseId: toolCall.id,
+            result: resultText,
+            isError: false,
+          });
         } catch (error) {
           console.error(`Error executing tool ${toolCall.name}:`, error);
+          const errorMsg = `Error: ${error instanceof Error ? error.message : "Unknown error"}`;
           toolResults.push({
             type: "tool_result",
             tool_use_id: toolCall.id,
             is_error: true,
-            content: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+            content: errorMsg,
           });
           accumulatedContent += `*Tool error:* Failed to execute ${toolCall.name}\n`;
+          accumulatedBlocks.push({
+            type: "tool_use_pair",
+            toolName: toolCall.name,
+            toolInput: toolCall.input,
+            toolUseId: toolCall.id,
+            result: errorMsg,
+            isError: true,
+          });
         }
       } else {
         // No executor provided — return error to the model
@@ -177,6 +214,7 @@ export async function sendChatTurn(
       }
 
       callbacks.onContentUpdate?.(accumulatedContent);
+      callbacks.onBlocksUpdate?.([...accumulatedBlocks]);
     }
 
     fullConversation.push({ role: "assistant", content: response.content });
@@ -191,19 +229,24 @@ export async function sendChatTurn(
   // ── Final text ──
   const finalText = extractTextFromBlocks(response.content);
   accumulatedContent += finalText;
+  pushTextBlock(finalText);
 
   // Citations
   const citations = extractCitations(response.content);
   if (citations.length > 0) {
-    accumulatedContent +=
+    const citationText =
       "\n\n**Sources:**\n" +
       citations.map((c) => `- [${c.title}](${c.url})`).join("\n");
+    accumulatedContent += citationText;
+    pushTextBlock(citationText);
   }
 
   callbacks.onContentUpdate?.(accumulatedContent);
+  callbacks.onBlocksUpdate?.([...accumulatedBlocks]);
 
   return {
     content: accumulatedContent,
+    contentBlocks: accumulatedBlocks,
     inputTokens: totalInputTokens,
     outputTokens: totalOutputTokens,
   };

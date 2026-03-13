@@ -1,6 +1,7 @@
-import { useRef, useEffect } from "react";
+import { Fragment, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import type { ChatMessage, ContentBlock } from "../types";
+import type { ChatMessage, ContentBlock, RichContentBlock } from "../types";
+import ToolUseBlock from "./ToolUseBlock";
 
 interface ChatMessageListProps {
   messages: ChatMessage[];
@@ -21,6 +22,28 @@ function extractTextContent(content: string | ContentBlock[]): string {
       .join("");
   }
   return "";
+}
+
+function renderRichBlocks(
+  blocks: RichContentBlock[],
+  renderText: (text: string) => React.ReactNode,
+): React.ReactNode {
+  return blocks.map((block, i) => {
+    if (block.type === "text") {
+      return <Fragment key={i}>{renderText(block.text)}</Fragment>;
+    }
+    if (block.type === "tool_use_pair") {
+      return (
+        <ToolUseBlock
+          key={block.toolUseId}
+          toolName={block.toolName}
+          result={block.result}
+          isError={block.isError}
+        />
+      );
+    }
+    return null;
+  });
 }
 
 function ChatMessageList({
@@ -50,6 +73,8 @@ function ChatMessageList({
 
   const isEmpty = messages.length === 0 && !currentStreamingMessage;
 
+  const renderTextDefault = (text: string) => <ReactMarkdown>{text}</ReactMarkdown>;
+
   return (
     <div className="chat-conversation-area">
       {isEmpty ? (
@@ -57,13 +82,26 @@ function ChatMessageList({
       ) : (
         <div ref={scrollRef} className="chat-conversation-messages">
           {messages.map((message) => {
-            const contentText = extractTextContent(message.content);
+            if (message.role === "user") {
+              const contentText = extractTextContent(message.content);
+              return (
+                <div key={message.id} className="chat-msg chat-msg-user">
+                  {contentText}
+                </div>
+              );
+            }
 
-            return message.role === "user" ? (
-              <div key={message.id} className="chat-msg chat-msg-user">
-                {contentText}
-              </div>
-            ) : (
+            // Assistant message: prefer richBlocks when available
+            if (message.richBlocks && message.richBlocks.length > 0) {
+              return (
+                <div key={message.id} className="chat-msg chat-msg-agent">
+                  {renderRichBlocks(message.richBlocks, renderTextDefault)}
+                </div>
+              );
+            }
+
+            const contentText = extractTextContent(message.content);
+            return (
               <div key={message.id} className="chat-msg chat-msg-agent">
                 {renderMessageContent
                   ? renderMessageContent(contentText, message.id)
@@ -74,9 +112,13 @@ function ChatMessageList({
 
           {currentStreamingMessage && (
             <div className="chat-msg chat-msg-agent">
-              <ReactMarkdown>
-                {extractTextContent(currentStreamingMessage.content) || " "}
-              </ReactMarkdown>
+              {currentStreamingMessage.richBlocks && currentStreamingMessage.richBlocks.length > 0 ? (
+                renderRichBlocks(currentStreamingMessage.richBlocks, renderTextDefault)
+              ) : (
+                <ReactMarkdown>
+                  {extractTextContent(currentStreamingMessage.content) || " "}
+                </ReactMarkdown>
+              )}
               {currentStreamingMessage.streaming && (
                 <div className="chat-streaming-indicator">
                   <div className="chat-spinner" />

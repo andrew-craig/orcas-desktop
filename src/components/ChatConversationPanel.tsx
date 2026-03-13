@@ -1,5 +1,7 @@
-import { useRef } from "react";
-import type { ChatMessage } from "../types";
+import { Fragment, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import type { ChatMessage, RichContentBlock } from "../types";
+import ToolUseBlock from "./ToolUseBlock";
 
 interface ChatConversationPanelProps {
   messages: ChatMessage[];
@@ -9,6 +11,36 @@ interface ChatConversationPanelProps {
   onToggleExpand: () => void;
   onClear?: () => void;
   isStreaming?: boolean;
+}
+
+function extractText(message: ChatMessage): string {
+  if (typeof message.content === "string") return message.content;
+  if (Array.isArray(message.content)) {
+    return message.content
+      .filter((block: any) => block.type === "text")
+      .map((block: any) => block.text)
+      .join("");
+  }
+  return "";
+}
+
+function renderRichBlocks(blocks: RichContentBlock[]): React.ReactNode {
+  return blocks.map((block, i) => {
+    if (block.type === "text") {
+      return <Fragment key={i}><ReactMarkdown>{block.text}</ReactMarkdown></Fragment>;
+    }
+    if (block.type === "tool_use_pair") {
+      return (
+        <ToolUseBlock
+          key={block.toolUseId}
+          toolName={block.toolName}
+          result={block.result}
+          isError={block.isError}
+        />
+      );
+    }
+    return null;
+  });
 }
 
 function ChatConversationPanel({
@@ -72,36 +104,39 @@ function ChatConversationPanel({
         className="chat-conversation-messages"
       >
         {messages.map((message) => {
-          const contentText =
-            typeof message.content === "string"
-              ? message.content
-              : Array.isArray(message.content)
-                ? message.content
-                    .filter((block: any) => block.type === "text")
-                    .map((block: any) => block.text)
-                    .join("")
-                : "";
+          if (message.role === "user") {
+            return (
+              <div key={message.id} className="chat-msg-user">
+                {extractText(message)}
+              </div>
+            );
+          }
 
-          return message.role === "user" ? (
-            <div key={message.id} className="chat-msg-user">
-              {contentText}
-            </div>
-          ) : (
+          // Assistant: prefer richBlocks when available
+          if (message.richBlocks && message.richBlocks.length > 0) {
+            return (
+              <div key={message.id} className="chat-msg-agent">
+                {renderRichBlocks(message.richBlocks)}
+              </div>
+            );
+          }
+
+          return (
             <div key={message.id} className="chat-msg-agent">
-              <AgentMessageContent content={contentText} />
+              <ReactMarkdown>{extractText(message)}</ReactMarkdown>
             </div>
           );
         })}
 
         {currentStreamingMessage && (
           <div className="chat-msg-agent">
-            <AgentMessageContent
-              content={
-                typeof currentStreamingMessage.content === "string"
-                  ? currentStreamingMessage.content || " "
-                  : " "
-              }
-            />
+            {currentStreamingMessage.richBlocks && currentStreamingMessage.richBlocks.length > 0 ? (
+              renderRichBlocks(currentStreamingMessage.richBlocks)
+            ) : (
+              <ReactMarkdown>
+                {extractText(currentStreamingMessage) || " "}
+              </ReactMarkdown>
+            )}
             {currentStreamingMessage.streaming && (
               <div className="chat-streaming-indicator">
                 <span>{agentName} is thinking...</span>
@@ -112,14 +147,6 @@ function ChatConversationPanel({
       </div>
     </div>
   );
-}
-
-// Small helper to avoid importing ReactMarkdown in the panel
-// TodayPage already imports it, so this component will be used by TodayPage
-import ReactMarkdown from "react-markdown";
-
-function AgentMessageContent({ content }: { content: string }) {
-  return <ReactMarkdown>{content}</ReactMarkdown>;
 }
 
 export default ChatConversationPanel;

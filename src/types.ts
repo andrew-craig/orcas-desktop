@@ -91,6 +91,20 @@ export interface ToolResultContentBlock {
 
 export type ContentBlock = TextContentBlock | ToolUseContentBlock | ToolResultContentBlock;
 
+// Rich content blocks for UI rendering (pairs tool_use with its result)
+export interface ToolUsePair {
+  type: 'tool_use_pair';
+  toolName: string;
+  toolInput: any;
+  toolUseId: string;
+  result: string | null;
+  isError: boolean;
+}
+
+export type RichContentBlock =
+  | { type: 'text'; text: string }
+  | ToolUsePair;
+
 // Token usage tracking
 export interface TokenUsage {
   input_tokens: number;
@@ -103,6 +117,7 @@ export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string | ContentBlock[]; // Support both simple and complex content
+  richBlocks?: RichContentBlock[]; // Structured content blocks for tool use rendering
   timestamp: Date;
   streaming?: boolean;
   usage?: TokenUsage; // Track token usage for each message

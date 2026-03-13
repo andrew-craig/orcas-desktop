@@ -426,6 +426,12 @@ export default function TodayPage({ onTaskClick }: TodayPageProps) {
               return { ...prev, content };
             });
           },
+          onBlocksUpdate: (blocks) => {
+            setCurrentStreamingMessage(prev => {
+              if (!prev) return null;
+              return { ...prev, richBlocks: blocks };
+            });
+          },
           executeTool,
         },
       );
@@ -433,6 +439,7 @@ export default function TodayPage({ onTaskClick }: TodayPageProps) {
       const finalMessage = {
         ...assistantMessage,
         content: result.content,
+        richBlocks: result.contentBlocks,
         streaming: false,
       };
 

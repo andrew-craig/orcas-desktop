@@ -303,6 +303,12 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
               return { ...prev, content };
             });
           },
+          onBlocksUpdate: (blocks) => {
+            setCurrentStreamingMessage((prev) => {
+              if (!prev) return null;
+              return { ...prev, richBlocks: blocks };
+            });
+          },
           executeTool,
         },
       );
@@ -310,6 +316,7 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
       const finalMessage = {
         ...assistantMessage,
         content: result.content,
+        richBlocks: result.contentBlocks,
         streaming: false,
       };
 
