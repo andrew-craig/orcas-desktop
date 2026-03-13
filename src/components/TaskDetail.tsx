@@ -26,6 +26,7 @@ import ChatInterface from "./ChatInterface";
 import { getLastUsedAgentForTask, getAllAgents } from "../api";
 import { executeBackgroundTask } from "../utils/backgroundTasks";
 import { contextSupplementationTask } from "../utils/contextSupplementationTask";
+import { userKnowledgeTask } from "../utils/userKnowledgeTask";
 
 interface TaskDetailProps {
   task: TaskWithSubTasks;
@@ -245,6 +246,13 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
     return () => {
       executeBackgroundTask(contextSupplementationTask, { taskId, spaceId }).catch(
         (err) => console.error("Background context update failed:", err),
+      );
+      executeBackgroundTask(userKnowledgeTask, {
+        chatSource: "task" as const,
+        taskId,
+        spaceId,
+      }).catch(
+        (err) => console.error("Background user knowledge update failed:", err),
       );
     };
   }, [task.id, task.space_id]);

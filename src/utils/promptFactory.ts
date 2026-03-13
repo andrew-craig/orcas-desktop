@@ -11,6 +11,7 @@ export interface TaskPromptContext {
   taskId: number;
   spaceId: number;
   spaceContext?: string;
+  userKnowledge?: string;
 }
 
 export interface TodayPromptContext {
@@ -18,6 +19,7 @@ export interface TodayPromptContext {
   agentPrompt: string;
   agentName: string;
   agendaContext: string;
+  userKnowledge?: string;
 }
 
 export type PromptContext = TaskPromptContext | TodayPromptContext;
@@ -51,12 +53,16 @@ const TOOL_USAGE_GUIDE = `Use these tools to:
 export function buildSystemPrompt(ctx: PromptContext): string {
   const base = ctx.agentPrompt || `You are ${ctx.agentName}, a helpful AI assistant.`;
 
+  const userSection = ctx.userKnowledge
+    ? `\n\n# User Knowledge\n\n${ctx.userKnowledge}\n\n---\n`
+    : "";
+
   if (ctx.kind === "task") {
     const spaceSection = ctx.spaceContext
       ? `\n\n# Space Context\n\n${ctx.spaceContext}\n\n---\n`
       : "";
 
-    return `${base}${spaceSection}
+    return `${base}${userSection}${spaceSection}
 
 You are currently working on Task ID: ${ctx.taskId} in Space ID: ${ctx.spaceId}. You have access to the following tools:
 ${TOOL_DOCS}
@@ -65,7 +71,7 @@ ${TOOL_USAGE_GUIDE}`;
   }
 
   // Today context
-  return `${base}
+  return `${base}${userSection}
 
 You are helping the user plan and organise their day. You have access to the following tools:
 ${TOOL_DOCS}

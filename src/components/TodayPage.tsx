@@ -10,6 +10,8 @@ import { extractMeetingLink, formatAttendees } from '../utils/videoConferencing'
 import { sendChatTurn } from '../utils/chatEngine';
 import { getAgentToolSchemas, createToolExecutor } from '../utils/agentTools';
 import { buildSystemPrompt } from '../utils/promptFactory';
+import { executeBackgroundTask } from '../utils/backgroundTasks';
+import { userKnowledgeTask } from '../utils/userKnowledgeTask';
 
 interface TodayPageProps {
   onTaskClick?: (taskId: number) => void;
@@ -35,6 +37,7 @@ export default function TodayPage({ onTaskClick }: TodayPageProps) {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
+  const [userKnowledge, setUserKnowledge] = useState<string>("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const chatAreaRef = useRef<HTMLDivElement>(null);
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -195,6 +198,13 @@ export default function TodayPage({ onTaskClick }: TodayPageProps) {
       } catch (err) {
         console.error('Failed to load API key:', err);
       }
+
+      try {
+        const knowledge = await getSetting('user_knowledge_document');
+        setUserKnowledge(knowledge || "");
+      } catch (err) {
+        console.error('Failed to load user knowledge:', err);
+      }
     } catch (err) {
       console.error('Error loading today data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load today data');
@@ -222,6 +232,23 @@ export default function TodayPage({ onTaskClick }: TodayPageProps) {
   useEffect(() => {
     loadEventTags(events);
   }, [events, loadEventTags]);
+
+  // Trigger background user knowledge supplementation on unmount
+  const selectedAgentRef = useRef(selectedAgent);
+  selectedAgentRef.current = selectedAgent;
+  useEffect(() => {
+    return () => {
+      const agent = selectedAgentRef.current;
+      if (agent) {
+        executeBackgroundTask(userKnowledgeTask, {
+          chatSource: "today" as const,
+          agentId: agent.id,
+        }).catch((err) =>
+          console.error("Background user knowledge update failed:", err),
+        );
+      }
+    };
+  }, []);
 
   const handleTagSpace = async (eventId: string, spaceId: number) => {
     const event = events.find(e => e.id === eventId);
@@ -359,6 +386,7 @@ export default function TodayPage({ onTaskClick }: TodayPageProps) {
         agentPrompt: selectedAgent.agent_prompt || '',
         agentName: selectedAgent.name,
         agendaContext,
+        userKnowledge: userKnowledge || undefined,
       });
 
       const modelName = selectedAgent.model_name || 'claude-sonnet-4-5';

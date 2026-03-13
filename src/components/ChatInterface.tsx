@@ -31,6 +31,7 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [availableAgents, setAvailableAgents] = useState<Agent[]>([]);
   const [spaceContext, setSpaceContext] = useState<string>("");
+  const [userKnowledge, setUserKnowledge] = useState<string>("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -62,6 +63,7 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
     loadApiKey();
     loadAgents();
     loadSpaceContext();
+    loadUserKnowledge();
   }, [agent, taskId]);
 
   // Listen for task notes changes made by the user (emitted from TaskDetail)
@@ -101,6 +103,15 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
       setSpaceContext(context || "");
     } catch (error) {
       console.error("Failed to load space context:", error);
+    }
+  };
+
+  const loadUserKnowledge = async () => {
+    try {
+      const knowledge = await getSetting("user_knowledge_document");
+      setUserKnowledge(knowledge || "");
+    } catch (error) {
+      console.error("Failed to load user knowledge:", error);
     }
   };
 
@@ -245,6 +256,7 @@ function ChatInterface({ agent, taskId, spaceId, onAgentChange }: ChatInterfaceP
         taskId,
         spaceId,
         spaceContext: spaceContext || undefined,
+        userKnowledge: userKnowledge || undefined,
       });
 
       // Resolve tools
