@@ -72,7 +72,7 @@ orcas-desktop/
 │   ├── settings.json           # Hook configuration
 │   └── hooks/
 │       └── session-start.sh    # SessionStart hook (npm install)
-└── tasks/                      # Issue tracking (bd command)
+└── tasks/                      # Issue tracking
 ```
 
 ## Core Concepts
