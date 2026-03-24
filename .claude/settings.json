@@ -4,9 +4,9 @@
   },
   "permissions": {
     "allow": [
-      "Bash(tsk list:*)",
-      "Bash(tsk create:*)",
-      "Bash(tsk update:*)"
+      "Bash(task list:*)",
+      "Bash(task create:*)",
+      "Bash(task update:*)"
     ]
   },
   "hooks": {

@@ -406,12 +406,12 @@ npm run tauri build  # Production build
 
 ## Task Tracking
 
-This project uses `tsk` for task management. **Always use `tsk` for ANY task-related operation** — listing, querying, creating, updating, or closing tasks. If it is not available directly, invoke using the `/task-manager` skill. Only read the file directory directly when neither of these options work.
+This project uses `tskm` for task management. **Always use `tskm` for ANY task-related operation** — listing, querying, creating, updating, or closing tasks. If it is not available directly, invoke using the `/task-manager` skill. Only read the file directory directly when neither of these options work.
 
 Tasks are stored as markdown files with YAML frontmatter at `tasks/<type>_<hex>.md` (e.g. `tasks/bug_5cc8.md`). Closed tasks move to `tasks/closed/`.
 
 ### Individual Task Tracking
-1. **Setup tracking**: If there is not an existing task, create one with `tsk create` or `/task-manager`
+1. **Setup tracking**: If there is not an existing task, create one with `tskm create` or `/task-manager`
 2. **Plan First**: Write plan to the task file with checkable items
 3. **Verify Plan**: Check in before starting implementation
 4. **Track Progress**: Mark items complete as you go
