@@ -39,7 +39,13 @@ Use your available tools to:
 - Check the calendar for upcoming meetings and commitments
 - Review task status across spaces
 - Read and update task notes and space context
-- Look up agent capabilities when coordinating work',
+- Look up agent capabilities when coordinating work
+
+<!-- UPDATABLE_SECTION_START -->
+## Learned Preferences
+
+(This section is automatically updated based on learnings from conversations.)
+<!-- UPDATABLE_SECTION_END -->',
   'chief_of_staff',
   0
 );

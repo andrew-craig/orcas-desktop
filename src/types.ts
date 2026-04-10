@@ -66,6 +66,7 @@ export interface Agent {
   agent_prompt: string;
   system_role?: string | null;
   web_search_enabled: boolean;
+  updatable_prompt_section?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -505,6 +505,12 @@ pub fn run() {
             sql: include_str!("../migrations/025_add_background_task_runs.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 26,
+            description: "add_updatable_prompt_section",
+            sql: include_str!("../migrations/026_add_updatable_prompt_section.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

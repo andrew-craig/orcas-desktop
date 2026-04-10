@@ -417,6 +417,17 @@ export async function deleteAgent(id: number): Promise<void> {
   await database.execute("DELETE FROM agents WHERE id = $1", [id]);
 }
 
+export async function updateAgentPromptSection(
+  agentId: number,
+  newSection: string,
+): Promise<void> {
+  const database = await getDb();
+  await database.execute(
+    "UPDATE agents SET updatable_prompt_section = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+    [newSection, agentId],
+  );
+}
+
 // Task-Agent Session operations
 export async function recordTaskAgentSession(
   taskId: number,

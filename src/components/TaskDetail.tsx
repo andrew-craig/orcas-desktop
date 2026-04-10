@@ -27,6 +27,7 @@ import { getLastUsedAgentForTask, getAllAgents } from "../api";
 import { executeBackgroundTask } from "../utils/backgroundTasks";
 import { contextSupplementationTask } from "../utils/contextSupplementationTask";
 import { userKnowledgeTask } from "../utils/userKnowledgeTask";
+import { agentPromptSelfUpdateTask } from "../utils/agentPromptSelfUpdateTask";
 
 interface TaskDetailProps {
   task: TaskWithSubTasks;
@@ -243,6 +244,7 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
   useEffect(() => {
     const taskId = task.id;
     const spaceId = task.space_id;
+    const agentId = selectedAgent?.id;
     return () => {
       executeBackgroundTask(contextSupplementationTask, { taskId, spaceId }).catch(
         (err) => console.error("Background context update failed:", err),
@@ -254,8 +256,13 @@ function TaskDetail({ task, onBack }: TaskDetailProps) {
       }).catch(
         (err) => console.error("Background user knowledge update failed:", err),
       );
+      if (agentId) {
+        executeBackgroundTask(agentPromptSelfUpdateTask, { taskId, spaceId, agentId }).catch(
+          (err) => console.error("Background agent prompt update failed:", err),
+        );
+      }
     };
-  }, [task.id, task.space_id]);
+  }, [task.id, task.space_id, selectedAgent?.id]);
 
   const forceUnlock = async () => {
     try {
